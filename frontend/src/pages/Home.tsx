@@ -23,7 +23,7 @@ const HERO_SLIDES = [
     title: 'RIWAYAT',
     subtitle: 'Mystic Kathakali Mudras & Folk Ballads of Malabar',
     description: 'Step into pre-dawn temple ritual preparations where Kathakali performers apply natural mineral pigments to transform into cosmic figures.',
-    bgImage: 'https://images.unsplash.com/photo-1547153760-18fc86324498?auto=format&fit=crop&w=1600&q=80',
+    bgImage: 'https://images.unsplash.com/photo-1649074705058-9d1579429e37?q=80&w=1025&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
     stat: '1,500+ Registered Artisans',
     ctaLink: '/workshops'
   },
