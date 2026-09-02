@@ -1,0 +1,10 @@
+node_modules/
+dist/
+dist-ssr/
+.env
+.env.*
+*.pdf
+skills.md
+improve_ui.md
+propmpt.txt
+.DS_Store
