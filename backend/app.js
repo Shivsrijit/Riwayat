@@ -6,8 +6,14 @@ const mongoose = require('mongoose');
 require('dotenv').config();
 const dns = require('dns');
 
-// Configure Google Public DNS for reliable SRV resolution
-dns.setDefaultServers(['8.8.8.8', '8.8.4.4']);
+// Configure DNS Servers safely across Node.js environments
+if (typeof dns.setServers === 'function') {
+  try {
+    dns.setServers(['8.8.8.8', '8.8.4.4']);
+  } catch (err) {
+    console.warn('[DNS] Custom DNS configuration notice:', err.message);
+  }
+}
 
 const app = express();
 
@@ -24,7 +30,7 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow non-browser clients (like Mobile apps or Postman) or matched origins
+    // Allow non-browser clients or matched origins
     if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV !== 'production') {
       return callback(null, true);
     }
