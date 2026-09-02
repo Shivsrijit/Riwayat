@@ -1,13 +1,13 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:4000/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 800, // 800ms ultra-fast network check, falls back instantly if backend is slow
+  timeout: 10000, // 10s network timeout for production cloud API servers
 });
 
 // Interceptor to inject JWT token

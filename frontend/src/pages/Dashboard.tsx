@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { User, Compass, BookOpen, ShoppingBag, Award, LogOut, ShieldCheck, MapPin, Plus, ExternalLink, Star, CheckCircle2, Bookmark, FileText, ChevronRight, Crown, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import AddStoryForm from '../components/AddStoryForm';
+import { fetchStories, fetchWorkshops } from '../services/api';
 import { toast } from 'sonner';
 
 // Official Heritage Badges Data Model
@@ -17,7 +18,7 @@ const CULTURAL_HERITAGE_BADGES = [
     borderColor: 'border-amber-400/50',
     glowColor: 'shadow-glow-gold',
     badgeSeal: 'LEVEL II FELLOW',
-    criteria: 'Published 2+ field stories on vanishing Indian crafts'
+    criteria: 'Published field stories on vanishing Indian crafts'
   },
   {
     id: 'badge-2',
@@ -63,57 +64,28 @@ const Dashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'stories' | 'workshops' | 'saved' | 'badges'>('badges');
   const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
 
-  // Mock user activity data for dashboard
-  const userStories = [
-    {
-      _id: 'user-story-1',
-      title: 'The Sacred Chamba Rumal Embroiderers of Himachal Pradesh',
-      category: 'Art & Crafts',
-      region: 'Himachal Pradesh',
-      date: 'Aug 24, 2026',
-      readTime: '6 min read',
-      upvotes: 42,
-      image: 'https://images.unsplash.com/photo-1600011689032-8b628b8a874b?auto=format&fit=crop&w=800&q=80',
-      description: 'Documenting double-satin stitch embroideries depicting Pahari miniature legends, practiced by women elders of Chamba.'
-    },
-    {
-      _id: 'user-story-2',
-      title: 'Varanasi Kadwa Weavers: Preserving Gold Zari Brocades',
-      category: 'Art & Crafts',
-      region: 'Uttar Pradesh',
-      date: 'Jul 18, 2026',
-      readTime: '8 min read',
-      upvotes: 89,
-      image: 'https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?auto=format&fit=crop&w=800&q=80',
-      description: 'A deep dive into handloom pit looms in Madanpura weaving pure silk brocades using vintage Jacquard punch cards.'
-    }
-  ];
+  const [userStories, setUserStories] = useState<any[]>([]);
+  const [userWorkshops, setUserWorkshops] = useState<any[]>([]);
+  const [loadingData, setLoadingData] = useState(true);
 
-  const userWorkshops = [
-    {
-      _id: 'user-ws-1',
-      title: 'Kathakali Mudras & Facial Pigment Alchemy',
-      instructor: 'Guru Kalamandalam Gopi',
-      progress: 85,
-      lessonsCompleted: 12,
-      totalLessons: 14,
-      image: 'https://images.unsplash.com/photo-1547153760-18fc86324498?auto=format&fit=crop&w=800&q=80'
-    },
-    {
-      _id: 'user-ws-2',
-      title: 'Tanjore Gold Leaf Foil Painting',
-      instructor: 'Master Artisan R. Meenakshi',
-      progress: 40,
-      lessonsCompleted: 4,
-      totalLessons: 10,
-      image: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=800&q=80'
-    }
-  ];
-
-  const userSavedHotspots = [
-    { name: 'Khajuraho Nagara Temples', region: 'Madhya Pradesh', image: 'https://images.unsplash.com/photo-1600011689032-8b628b8a874b?auto=format&fit=crop&w=800&q=80' },
-    { name: 'Konark Sun Temple Stone Wheels', region: 'Odisha', image: 'https://images.unsplash.com/photo-1547153760-18fc86324498?auto=format&fit=crop&w=800&q=80' }
-  ];
+  useEffect(() => {
+    const loadDashboardData = async () => {
+      setLoadingData(true);
+      try {
+        const [storiesData, workshopsData] = await Promise.all([
+          fetchStories(),
+          fetchWorkshops()
+        ]);
+        setUserStories(storiesData.slice(0, 4));
+        setUserWorkshops(workshopsData.slice(0, 2));
+      } catch (e) {
+        console.warn('Dashboard data fetch error:', e);
+      } finally {
+        setLoadingData(false);
+      }
+    };
+    loadDashboardData();
+  }, []);
 
   if (!user) {
     return (
@@ -326,10 +298,12 @@ const Dashboard: React.FC = () => {
             </div>
           )}
 
-          {/* TAB 2: STORIES */}
+          {/* TAB 2: DYNAMIC STORIES */}
           {activeTab === 'stories' && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-ent-rise">
-              {userStories.map((story) => (
+              {loadingData ? (
+                <div className="col-span-2 text-center py-10 text-amber-300/70 text-xs">Loading documentation...</div>
+              ) : userStories.map((story) => (
                 <div key={story._id} className="glass-card rounded-2xl overflow-hidden p-4 flex gap-4 items-center">
                   <img
                     src={story.image}
@@ -339,7 +313,7 @@ const Dashboard: React.FC = () => {
                   <div className="space-y-1.5 flex-1 min-w-0">
                     <div className="flex items-center justify-between text-[10px] text-amber-400 font-semibold uppercase">
                       <span>{story.category}</span>
-                      <span>{story.date}</span>
+                      <span>{story.region || 'India'}</span>
                     </div>
                     <h3 className="font-serif-heritage text-base font-bold text-amber-100 line-clamp-1">
                       {story.title}
@@ -348,7 +322,7 @@ const Dashboard: React.FC = () => {
                       {story.description}
                     </p>
                     <div className="pt-1 flex items-center justify-between text-xs text-amber-300">
-                      <span className="text-[10px] font-mono">{story.readTime}</span>
+                      <span className="text-[10px] font-mono">{story.readTime || '5 min read'}</span>
                       <button
                         onClick={() => navigate('/stories')}
                         className="text-amber-400 font-bold hover:underline text-xs flex items-center gap-1"
@@ -363,10 +337,12 @@ const Dashboard: React.FC = () => {
             </div>
           )}
 
-          {/* TAB 3: WORKSHOPS */}
+          {/* TAB 3: DYNAMIC WORKSHOPS */}
           {activeTab === 'workshops' && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-ent-rise">
-              {userWorkshops.map((ws) => (
+              {loadingData ? (
+                <div className="col-span-2 text-center py-10 text-amber-300/70 text-xs">Loading masterclasses...</div>
+              ) : userWorkshops.map((ws) => (
                 <div key={ws._id} className="glass-card rounded-2xl p-5 space-y-4">
                   <div className="flex gap-4 items-center">
                     <img src={ws.image} alt={ws.title} className="w-20 h-20 rounded-xl object-cover" />
@@ -374,21 +350,8 @@ const Dashboard: React.FC = () => {
                       <h4 className="font-serif-heritage text-base font-bold text-amber-100">{ws.title}</h4>
                       <p className="text-xs text-amber-300/80">Instructor: {ws.instructor}</p>
                       <p className="text-[10px] text-emerald-400 font-semibold">
-                        {ws.lessonsCompleted} of {ws.totalLessons} Lessons Completed
+                        Enrolled & Active Course
                       </p>
-                    </div>
-                  </div>
-
-                  <div className="space-y-1">
-                    <div className="flex justify-between text-[10px] font-mono text-amber-300">
-                      <span>Syllabus Progress</span>
-                      <span>{ws.progress}%</span>
-                    </div>
-                    <div className="w-full h-2 bg-[#060A12] rounded-full overflow-hidden border border-amber-500/20">
-                      <div
-                        className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full"
-                        style={{ width: `${ws.progress}%` }}
-                      />
                     </div>
                   </div>
 
@@ -414,6 +377,7 @@ const Dashboard: React.FC = () => {
           onClose={() => setIsSubmitModalOpen(false)}
           onStoryAdded={(newStory) => {
             setIsSubmitModalOpen(false);
+            setUserStories((prev) => [newStory, ...prev]);
             toast.success('Story submitted to Creator Studio');
           }}
         />

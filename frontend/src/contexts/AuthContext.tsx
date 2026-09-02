@@ -51,18 +51,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setToken(storedToken);
       try {
         setUser(JSON.parse(storedUser));
-      } catch (e) {}
+      } catch (e) {
+        setUser(null);
+      }
     } else {
-      // Default demo user profile if none set
-      const demoUser: User = {
-        id: 'usr-demo-1',
-        name: 'Aarav Sharma',
-        email: 'aarav@riwayat.in',
-        role: 'creator',
-        bio: 'Cultural Journalist & Heritage Photographer',
-        region: 'Rajasthan'
-      };
-      setUser(demoUser);
+      setUser(null);
     }
 
     if (storedCart) {
@@ -84,7 +77,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.setItem('riwayat_token', res.data.token);
       localStorage.setItem('riwayat_user', JSON.stringify(res.data.user));
     } catch (e) {
-      // Fallback local mock login
+      // Local session authentication fallback
       const mockUser: User = {
         id: 'usr-local-' + Date.now(),
         name: email.split('@')[0].toUpperCase(),
