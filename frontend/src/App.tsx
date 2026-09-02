@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 import { Toaster } from 'sonner';
 import Header from './components/Header';
 import AuthModal from './components/AuthModal';
@@ -22,34 +23,36 @@ function App() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   return (
-    <AuthProvider>
-      <Router>
-        <div className="min-h-screen bg-[#060A12] text-amber-50 flex flex-col justify-between selection:bg-amber-500 selection:text-black">
-          <div>
-            <Toaster position="top-right" theme="dark" richColors />
-            <Header onAuthClick={() => setIsAuthModalOpen(true)} />
-            <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
-            <CartDrawer />
+    <ThemeProvider>
+      <AuthProvider>
+        <Router>
+          <div className="min-h-screen bg-[#060A12] text-amber-50 flex flex-col justify-between transition-colors duration-300 selection:bg-amber-500 selection:text-black">
+            <div>
+              <Toaster position="top-right" richColors />
+              <Header onAuthClick={() => setIsAuthModalOpen(true)} />
+              <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
+              <CartDrawer />
+              
+              <main>
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/stories" element={<Stories />} />
+                  <Route path="/workshops" element={<Workshops />} />
+                  <Route path="/marketplace" element={<Marketplace />} />
+                  <Route path="/forum" element={<Forum />} />
+                  <Route path="/destinations" element={<Destinations />} />
+                  <Route path="/recent-events" element={<RecentEvents />} />
+                  <Route path="/artists" element={<Artists />} />
+                  <Route path="/dashboard" element={<Dashboard />} />
+                </Routes>
+              </main>
+            </div>
             
-            <main>
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/stories" element={<Stories />} />
-                <Route path="/workshops" element={<Workshops />} />
-                <Route path="/marketplace" element={<Marketplace />} />
-                <Route path="/forum" element={<Forum />} />
-                <Route path="/destinations" element={<Destinations />} />
-                <Route path="/recent-events" element={<RecentEvents />} />
-                <Route path="/artists" element={<Artists />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-              </Routes>
-            </main>
+            <Footer />
           </div>
-          
-          <Footer />
-        </div>
-      </Router>
-    </AuthProvider>
+        </Router>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 

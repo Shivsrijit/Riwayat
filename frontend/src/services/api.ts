@@ -287,4 +287,32 @@ export const fetchCreatorJobs = async () => {
   }
 };
 
+export const clearCache = (key?: string) => {
+  if (key) {
+    delete memoryCache[key];
+  } else {
+    Object.keys(memoryCache).forEach((k) => delete memoryCache[k]);
+  }
+};
+
+export const createStory = async (storyData: any) => {
+  try {
+    const res = await api.post('/stories', storyData);
+    clearCache('stories');
+    clearCache('destinations');
+    return res.data;
+  } catch (e) {
+    const mockStory = {
+      _id: 'story-local-' + Date.now(),
+      ...storyData,
+      isApproved: true,
+      createdAt: new Date().toISOString()
+    };
+    if (memoryCache['stories']) {
+      memoryCache['stories'] = [mockStory, ...memoryCache['stories']];
+    }
+    return mockStory;
+  }
+};
+
 export default api;

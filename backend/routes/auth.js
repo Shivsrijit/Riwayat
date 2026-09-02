@@ -19,10 +19,12 @@ const authMiddleware = (req, res, next) => {
   }
 };
 
-// Register user
+// Register user in MongoDB database
 router.post('/register', async (req, res) => {
   try {
-    const { name, email, password, role, bio, region } = req.body;
+    const { name, email, password, role, userType, bio, region } = req.body;
+    const assignedRole = role || userType || 'visitor';
+
     let user = await User.findOne({ email });
     if (user) return res.status(400).json({ error: 'User already exists with this email.' });
 
@@ -33,12 +35,14 @@ router.post('/register', async (req, res) => {
       name,
       email,
       password: hashedPassword,
-      role: role || 'visitor',
-      bio: bio || '',
-      region: region || ''
+      role: assignedRole,
+      bio: bio || 'RIWAYAT Heritage Explorer',
+      region: region || 'India'
     });
 
     await user.save();
+    console.log('[MONGODB REGISTER SUCCESS] Saved new registered user:', user.email, 'Role:', user.role);
+
     const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
     
     res.status(201).json({
@@ -53,7 +57,8 @@ router.post('/register', async (req, res) => {
       }
     });
   } catch (err) {
-    res.status(500).json({ error: 'Server error during registration.' });
+    console.error('[MONGODB REGISTER ERROR]', err.message);
+    res.status(500).json({ error: 'Server error during registration: ' + err.message });
   }
 });
 
@@ -67,6 +72,7 @@ router.post('/login', async (req, res) => {
     const validPassword = await bcrypt.compare(password, user.password);
     if (!validPassword) return res.status(400).json({ error: 'Invalid email or password.' });
 
+    console.log('[MONGODB LOGIN SUCCESS] User logged in:', user.email);
     const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
 
     res.json({
@@ -81,7 +87,8 @@ router.post('/login', async (req, res) => {
       }
     });
   } catch (err) {
-    res.status(500).json({ error: 'Server error during login.' });
+    console.error('[MONGODB LOGIN ERROR]', err.message);
+    res.status(500).json({ error: 'Server error during login: ' + err.message });
   }
 });
 

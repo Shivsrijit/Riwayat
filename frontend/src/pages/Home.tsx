@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ArrowRight, MapPin, Play, BookOpen, ShoppingBag, Users, Calendar, Award, Star, Compass, ChevronRight, Flame, Search, ShieldCheck, FileText, Globe, Landmark, Palette } from 'lucide-react';
 import { fetchStories, fetchDestinations, fetchEvents, fetchProducts, fetchWorkshops } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
 import { toast } from 'sonner';
 
 const HERO_SLIDES = [
@@ -56,6 +57,7 @@ const Home: React.FC = () => {
   const [workshops, setWorkshops] = useState<any[]>([]);
   const navigate = useNavigate();
   const { addToCart } = useAuth();
+  const { theme } = useTheme();
 
   const activeSlide = HERO_SLIDES[activeSlideIndex];
 
@@ -88,10 +90,10 @@ const Home: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#060A12] text-amber-50 selection:bg-amber-500 selection:text-black">
+    <div className="min-h-screen bg-[#060A12] light:bg-[#FAF7F2] text-amber-50 light:text-[#1A1612] selection:bg-amber-500 selection:text-black transition-colors duration-300">
       
       {/* 1. GRAND INDIAN CULTURE PORTAL HERO STAGE */}
-      <section className="relative w-full min-h-[640px] pt-12 pb-20 overflow-hidden border-b border-amber-500/15 flex items-center">
+      <section className="relative w-full min-h-[640px] pt-12 pb-20 overflow-hidden border-b border-amber-500/15 light:border-amber-900/15 flex items-center">
         
         {/* Background Slides */}
         {HERO_SLIDES.map((slide, idx) => (
@@ -104,9 +106,17 @@ const Home: React.FC = () => {
             <img
               src={slide.bgImage}
               alt={slide.title}
-              className="w-full h-full object-cover filter brightness-[0.28] contrast-110 transform transition-transform duration-7000 ease-out"
+              className={`w-full h-full object-cover transform transition-transform duration-7000 ease-out hero-bg-img-light ${
+                theme === 'light' ? 'filter brightness-75 contrast-105 saturate-110' : 'filter brightness-[0.28] contrast-110'
+              }`}
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#060A12] via-[#060A12]/60 to-[#060A12]/40" />
+            <div
+              className={`absolute inset-0 hero-overlay-light ${
+                theme === 'light'
+                  ? 'bg-gradient-to-t from-[#FAF7F2] via-[#FAF7F2]/40 to-[#FAF7F2]/10'
+                  : 'bg-gradient-to-t from-[#060A12] via-[#060A12]/60 to-[#060A12]/40'
+              }`}
+            />
           </div>
         ))}
 
@@ -114,8 +124,8 @@ const Home: React.FC = () => {
         <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-8 animate-ent-rise">
           
           {/* Government Portal Style Header Filigree */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-accent-cinzel font-bold uppercase tracking-widest shadow-xl">
-            <Landmark className="w-4 h-4 text-amber-400" />
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/15 light:bg-amber-800/15 border border-amber-500/30 light:border-amber-800/30 text-amber-300 light:text-amber-900 text-xs font-accent-cinzel font-bold uppercase tracking-widest shadow-xl">
+            <Landmark className="w-4 h-4 text-amber-400 light:text-amber-800" />
             <span>INDIAN CULTURE REPOSITORY & LIVING TRADITIONS</span>
           </div>
 
@@ -124,25 +134,25 @@ const Home: React.FC = () => {
             <h1 className="font-serif-heritage text-5xl sm:text-7xl lg:text-8xl font-black tracking-wider gold-gradient-text drop-shadow-2xl">
               {activeSlide.title}
             </h1>
-            <p className="font-accent-cinzel text-lg sm:text-2xl text-amber-200/90 font-medium tracking-wide">
+            <p className="font-accent-cinzel text-lg sm:text-2xl text-amber-200/90 light:text-amber-950 font-medium tracking-wide">
               {activeSlide.subtitle}
             </p>
           </div>
 
-          <p className="max-w-2xl mx-auto text-xs sm:text-sm text-amber-100/80 leading-relaxed font-light">
+          <p className="max-w-2xl mx-auto text-xs sm:text-sm text-amber-100/80 light:text-amber-900/90 leading-relaxed font-light">
             {activeSlide.description}
           </p>
 
-          {/* National Cultural Search Engine Bar (Inspired by IndianCulture.gov.in) */}
+          {/* National Cultural Search Engine Bar */}
           <form onSubmit={handleSearchSubmit} className="max-w-2xl mx-auto relative shadow-2xl">
             <div className="relative flex items-center">
-              <Search className="w-5 h-5 absolute left-4 text-amber-400/70" />
+              <Search className="w-5 h-5 absolute left-4 text-amber-400/70 light:text-amber-800" />
               <input
                 type="text"
                 placeholder="Search rare archives, master craftsmen, monuments, performing arts..."
                 value={globalSearch}
                 onChange={(e) => setGlobalSearch(e.target.value)}
-                className="w-full bg-[#0D1322]/90 backdrop-blur-xl border border-amber-500/40 rounded-2xl pl-12 pr-32 py-4 text-xs sm:text-sm text-amber-100 placeholder-amber-300/50 focus:outline-none focus:border-amber-400 shadow-2xl"
+                className="w-full bg-[#0D1322]/90 light:bg-[#FFFDF9]/95 backdrop-blur-xl border border-amber-500/40 light:border-amber-800/30 rounded-2xl pl-12 pr-32 py-4 text-xs sm:text-sm text-amber-100 light:text-[#1A1612] placeholder-amber-300/50 light:placeholder-amber-900/50 focus:outline-none focus:border-amber-400 light:focus:border-amber-700 shadow-2xl"
               />
               <button
                 type="submit"
@@ -161,7 +171,9 @@ const Home: React.FC = () => {
                 key={slide.id}
                 onClick={() => setActiveSlideIndex(i)}
                 className={`h-2 rounded-full transition-all duration-300 ${
-                  i === activeSlideIndex ? 'w-8 bg-amber-400' : 'w-2 bg-amber-500/40'
+                  i === activeSlideIndex
+                    ? 'w-8 bg-amber-400 light:bg-amber-800'
+                    : 'w-2 bg-amber-500/40 light:bg-amber-800/30'
                 }`}
               />
             ))}
@@ -169,11 +181,11 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* 2. PORTAL QUICK LAUNCH CATEGORY TILES (Inspired by Indian Culture Portal) */}
-      <section className="py-12 bg-[#080D1A] border-b border-amber-500/15">
+      {/* 2. PORTAL QUICK LAUNCH CATEGORY TILES */}
+      <section className="py-12 bg-[#080D1A] light:bg-[#F5EFE6] border-b border-amber-500/15 light:border-amber-900/15 transition-colors duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center space-y-2 mb-8">
-            <span className="text-[10px] font-bold tracking-[0.25em] uppercase text-amber-400 font-accent-cinzel">
+            <span className="text-[10px] font-bold tracking-[0.25em] uppercase text-amber-400 light:text-amber-900 font-accent-cinzel">
               Explore Cultural Repositories
             </span>
             <h2 className="font-serif-heritage text-2xl sm:text-3xl font-bold gold-gradient-text">
@@ -188,12 +200,12 @@ const Home: React.FC = () => {
                 <button
                   key={idx}
                   onClick={() => navigate(cat.path)}
-                  className={`p-4 rounded-xl bg-gradient-to-b ${cat.color} border border-amber-500/20 hover:border-amber-400 text-center space-y-3 transition-all duration-300 hover:-translate-y-1 shadow-lg group`}
+                  className={`p-4 rounded-xl bg-gradient-to-b ${cat.color} light:bg-white/80 border border-amber-500/20 light:border-amber-800/20 hover:border-amber-400 text-center space-y-3 transition-all duration-300 hover:-translate-y-1 shadow-lg group`}
                 >
-                  <div className="w-10 h-10 mx-auto rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-300 group-hover:scale-110 transition-transform">
+                  <div className="w-10 h-10 mx-auto rounded-lg bg-amber-500/10 light:bg-amber-800/10 border border-amber-500/30 light:border-amber-800/30 flex items-center justify-center text-amber-300 light:text-amber-900 group-hover:scale-110 transition-transform">
                     <IconComponent className="w-5 h-5" />
                   </div>
-                  <span className="font-serif-heritage text-xs font-bold text-amber-100 group-hover:text-amber-300 block">
+                  <span className="font-serif-heritage text-xs font-bold text-amber-100 light:text-[#1A1612] group-hover:text-amber-300 light:group-hover:text-amber-800 block">
                     {cat.name}
                   </span>
                 </button>
@@ -207,7 +219,7 @@ const Home: React.FC = () => {
       <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between mb-10 gap-4">
           <div>
-            <span className="text-[11px] font-bold tracking-[0.25em] uppercase text-amber-400 font-accent-cinzel">
+            <span className="text-[11px] font-bold tracking-[0.25em] uppercase text-amber-400 light:text-amber-900 font-accent-cinzel">
               Living Cultural Documentation
             </span>
             <h2 className="font-serif-heritage text-3xl sm:text-4xl font-bold gold-gradient-text">
@@ -216,7 +228,7 @@ const Home: React.FC = () => {
           </div>
           <Link
             to="/stories"
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-400 hover:text-amber-300"
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-400 light:text-amber-900 hover:underline"
           >
             <span>Explore All 20 Stories</span>
             <ChevronRight className="w-4 h-4" />
@@ -237,28 +249,28 @@ const Home: React.FC = () => {
                   alt={story.title}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
-                <div className="absolute top-3 left-3 bg-[#0B0F19]/90 border border-amber-500/30 text-amber-300 text-[10px] font-bold px-2.5 py-0.5 rounded-md uppercase">
+                <div className="absolute top-3 left-3 bg-[#0B0F19]/90 light:bg-white/90 border border-amber-500/30 light:border-amber-800/30 text-amber-300 light:text-amber-950 text-[10px] font-bold px-2.5 py-0.5 rounded-md uppercase">
                   {story.category}
                 </div>
               </div>
 
               <div className="p-5 space-y-3 flex-1 flex flex-col justify-between">
                 <div className="space-y-1.5">
-                  <div className="flex items-center gap-1.5 text-xs text-amber-400/80 font-semibold">
+                  <div className="flex items-center gap-1.5 text-xs text-amber-400/80 light:text-amber-900 font-semibold">
                     <MapPin className="w-3.5 h-3.5" />
                     <span>{story.region}</span>
                   </div>
-                  <h3 className="font-serif-heritage text-lg font-bold text-amber-100 group-hover:text-amber-300 line-clamp-2">
+                  <h3 className="font-serif-heritage text-lg font-bold text-amber-100 light:text-[#1A1612] group-hover:text-amber-300 light:group-hover:text-amber-800 line-clamp-2">
                     {story.title}
                   </h3>
-                  <p className="text-xs text-amber-200/70 line-clamp-2 leading-relaxed font-light">
+                  <p className="text-xs text-amber-200/70 light:text-amber-900/80 line-clamp-2 leading-relaxed font-light">
                     {story.description}
                   </p>
                 </div>
 
-                <div className="pt-3 border-t border-amber-500/10 flex items-center justify-between text-xs text-amber-300/80">
+                <div className="pt-3 border-t border-amber-500/10 light:border-amber-800/15 flex items-center justify-between text-xs text-amber-300/80 light:text-amber-900">
                   <span>By {story.author}</span>
-                  <span className="text-amber-400 font-semibold">Read Documentation</span>
+                  <span className="text-amber-400 light:text-amber-900 font-semibold">Read Documentation</span>
                 </div>
               </div>
             </div>
@@ -267,20 +279,20 @@ const Home: React.FC = () => {
       </section>
 
       {/* 4. ARTISAN STORE SPOTLIGHT */}
-      <section className="py-16 bg-[#080D1A] border-t border-amber-500/15">
+      <section className="py-16 bg-[#080D1A] light:bg-[#F5EFE6] border-t border-amber-500/15 light:border-amber-900/15 transition-colors duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between mb-10 gap-4">
             <div>
-              <span className="text-[11px] font-bold tracking-[0.25em] uppercase text-orange-400 font-accent-cinzel">
+              <span className="text-[11px] font-bold tracking-[0.25em] uppercase text-orange-400 light:text-orange-800 font-accent-cinzel">
                 Authentic Handcrafted Treasures
               </span>
-              <h2 className="font-serif-heritage text-3xl font-bold text-amber-100">
+              <h2 className="font-serif-heritage text-3xl font-bold text-amber-100 light:text-[#1A1612]">
                 Direct Artisan Fair-Trade Store
               </h2>
             </div>
             <Link
               to="/marketplace"
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-orange-400 hover:text-orange-300"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-orange-400 light:text-orange-800 hover:underline"
             >
               <span>Browse Full Store</span>
               <ChevronRight className="w-4 h-4" />
@@ -292,28 +304,28 @@ const Home: React.FC = () => {
               <div key={product._id} className="glass-card rounded-xl p-4 space-y-3 flex flex-col justify-between">
                 <div className="relative h-56 rounded-lg overflow-hidden">
                   <img src={product.image} alt={product.title} className="w-full h-full object-cover" />
-                  <div className="absolute top-2 right-2 bg-black/80 text-amber-300 text-[10px] px-2 py-0.5 rounded font-bold">
+                  <div className="absolute top-2 right-2 bg-black/80 light:bg-white/90 text-amber-300 light:text-amber-950 text-[10px] px-2 py-0.5 rounded font-bold">
                     {product.region}
                   </div>
                 </div>
 
                 <div className="space-y-1 flex-1">
-                  <span className="text-[10px] uppercase font-bold text-orange-400 font-mono">
+                  <span className="text-[10px] uppercase font-bold text-orange-400 light:text-orange-800 font-mono">
                     {product.craftType}
                   </span>
-                  <h3 className="font-serif-heritage text-base font-bold text-amber-100 line-clamp-1">
+                  <h3 className="font-serif-heritage text-base font-bold text-amber-100 light:text-[#1A1612] line-clamp-1">
                     {product.title}
                   </h3>
-                  <p className="text-xs text-amber-200/70">Artisan: {product.artisanName}</p>
+                  <p className="text-xs text-amber-200/70 light:text-amber-900/80">Artisan: {product.artisanName}</p>
                 </div>
 
-                <div className="flex items-center justify-between pt-3 border-t border-amber-500/10">
-                  <span className="font-serif-heritage text-lg font-bold text-amber-400">
+                <div className="flex items-center justify-between pt-3 border-t border-amber-500/10 light:border-amber-800/15">
+                  <span className="font-serif-heritage text-lg font-bold text-amber-400 light:text-amber-900">
                     ₹{product.price.toLocaleString()}
                   </span>
                   <button
                     onClick={(e) => handleAddToCart(product, e)}
-                    className="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-amber-500 to-orange-600 text-black font-bold text-xs"
+                    className="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-amber-500 to-orange-600 text-black font-bold text-xs shadow-md"
                   >
                     Add to Cart
                   </button>

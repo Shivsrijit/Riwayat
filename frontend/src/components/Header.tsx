@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, ShoppingBag, User, Search } from 'lucide-react';
+import { Menu, X, ShoppingBag, User, Search, Sun, Moon } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
 import GlobalSearchModal from './GlobalSearchModal';
 
 interface HeaderProps {
@@ -14,6 +15,7 @@ const Header: React.FC<HeaderProps> = ({ onAuthClick }) => {
 
   const location = useLocation();
   const { user, cart, setIsCartOpen } = useAuth();
+  const { theme, toggleTheme } = useTheme();
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -31,7 +33,7 @@ const Header: React.FC<HeaderProps> = ({ onAuthClick }) => {
 
   return (
     <>
-      <header className="sticky top-0 z-50 bg-[#0B0F19]/95 backdrop-blur-xl border-b border-amber-500/15 shadow-2xl">
+      <header className="sticky top-0 z-50 bg-[#0B0F19]/95 light:bg-[#FAF7F2]/95 backdrop-blur-xl border-b border-amber-500/15 light:border-amber-900/15 shadow-2xl transition-colors duration-300">
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20 gap-2 flex-nowrap">
             
@@ -40,13 +42,13 @@ const Header: React.FC<HeaderProps> = ({ onAuthClick }) => {
               <img
                 src="/riwayat-logo.png"
                 alt="RIWAYAT Heritage Crest Logo"
-                className="w-10 h-10 sm:w-11 sm:h-11 object-contain rounded-xl border border-amber-500/30 p-0.5 shadow-xl group-hover:scale-105 transition-transform duration-300 bg-[#060A12]"
+                className="w-10 h-10 sm:w-11 sm:h-11 object-contain rounded-xl border border-amber-500/30 p-0.5 shadow-xl group-hover:scale-105 transition-transform duration-300 bg-[#060A12] light:bg-[#FFFDF9]"
               />
               <div className="flex flex-col">
                 <span className="font-serif-heritage text-xl sm:text-2xl font-bold tracking-widest gold-gradient-text leading-tight">
                   RIWAYAT
                 </span>
-                <span className="text-[8px] sm:text-[9px] tracking-[0.2em] text-amber-300/70 font-accent-cinzel uppercase -mt-0.5">
+                <span className="text-[8px] sm:text-[9px] tracking-[0.2em] text-amber-300/70 light:text-amber-800/80 font-accent-cinzel uppercase -mt-0.5">
                   Heritage Hub
                 </span>
               </div>
@@ -62,8 +64,8 @@ const Header: React.FC<HeaderProps> = ({ onAuthClick }) => {
                     to={link.path}
                     className={`relative px-2.5 py-1.5 text-xs xl:text-sm font-medium tracking-wide transition-all duration-200 ${
                       active
-                        ? 'text-amber-300 font-semibold'
-                        : 'text-amber-100/70 hover:text-amber-200'
+                        ? 'text-amber-300 light:text-amber-900 font-semibold'
+                        : 'text-amber-100/70 light:text-amber-950/70 hover:text-amber-200 light:hover:text-amber-900'
                     }`}
                   >
                     <span>{link.label}</span>
@@ -78,23 +80,37 @@ const Header: React.FC<HeaderProps> = ({ onAuthClick }) => {
             {/* User Actions */}
             <div className="hidden lg:flex items-center space-x-2.5 flex-shrink-0">
               
+              {/* Theme Toggle Button (Light / Dark) */}
+              <button
+                onClick={toggleTheme}
+                className="p-2 rounded-xl bg-amber-500/10 light:bg-amber-800/10 hover:bg-amber-500/20 border border-amber-500/25 light:border-amber-800/30 text-amber-300 light:text-amber-900 transition-all duration-300 hover:scale-105 flex items-center justify-center"
+                aria-label="Toggle Theme"
+                title={theme === 'dark' ? 'Switch to Ivory Light Mode' : 'Switch to Royal Dark Mode'}
+              >
+                {theme === 'dark' ? (
+                  <Sun className="w-4 h-4 text-amber-400" />
+                ) : (
+                  <Moon className="w-4 h-4 text-amber-900" />
+                )}
+              </button>
+
               {/* Global Search Button */}
               <button
                 onClick={() => setIsSearchModalOpen(true)}
-                className="p-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/25 text-amber-300 transition-all duration-300 hover:scale-105 flex items-center gap-1.5 text-xs font-semibold"
+                className="p-2 rounded-xl bg-amber-500/10 light:bg-amber-800/10 hover:bg-amber-500/20 border border-amber-500/25 light:border-amber-800/30 text-amber-300 light:text-amber-900 transition-all duration-300 hover:scale-105 flex items-center gap-1.5 text-xs font-semibold"
                 aria-label="Search Heritage Portal"
               >
-                <Search className="w-4 h-4 text-amber-400" />
-                <span className="text-amber-300/70 hidden xl:inline">Search</span>
+                <Search className="w-4 h-4 text-amber-400 light:text-amber-800" />
+                <span className="text-amber-300/70 light:text-amber-900/80 hidden xl:inline">Search</span>
               </button>
 
               {/* Cart Button */}
               <button
                 onClick={() => setIsCartOpen(true)}
-                className="relative p-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/25 text-amber-300 transition-all duration-300 hover:scale-105"
+                className="relative p-2 rounded-xl bg-amber-500/10 light:bg-amber-800/10 hover:bg-amber-500/20 border border-amber-500/25 light:border-amber-800/30 text-amber-300 light:text-amber-900 transition-all duration-300 hover:scale-105"
                 aria-label="View Cart"
               >
-                <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400" />
+                <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400 light:text-amber-800" />
                 {totalCartCount > 0 && (
                   <span className="absolute -top-1.5 -right-1.5 w-4 h-4 sm:w-5 sm:h-5 bg-amber-400 text-black text-[10px] sm:text-[11px] font-bold rounded-full flex items-center justify-center shadow-lg">
                     {totalCartCount}
@@ -106,7 +122,7 @@ const Header: React.FC<HeaderProps> = ({ onAuthClick }) => {
               {user ? (
                 <Link
                   to="/dashboard"
-                  className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-200 text-xs xl:text-sm font-semibold transition-all shadow-md whitespace-nowrap"
+                  className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-amber-500/10 light:bg-amber-800/10 hover:bg-amber-500/20 border border-amber-500/30 light:border-amber-800/30 text-amber-200 light:text-amber-950 text-xs xl:text-sm font-semibold transition-all shadow-md whitespace-nowrap"
                 >
                   <div className="w-5 h-5 rounded-full bg-amber-400 text-black font-bold flex items-center justify-center text-[11px]">
                     {user.name.charAt(0).toUpperCase()}
@@ -126,6 +142,12 @@ const Header: React.FC<HeaderProps> = ({ onAuthClick }) => {
             {/* Mobile Menu Toggle Button */}
             <div className="flex lg:hidden items-center space-x-2">
               <button
+                onClick={toggleTheme}
+                className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300"
+              >
+                {theme === 'dark' ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5 text-amber-900" />}
+              </button>
+              <button
                 onClick={() => setIsSearchModalOpen(true)}
                 className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300"
               >
@@ -144,7 +166,7 @@ const Header: React.FC<HeaderProps> = ({ onAuthClick }) => {
               </button>
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="p-2 rounded-xl text-amber-200 hover:text-white bg-amber-500/10 border border-amber-500/30"
+                className="p-2 rounded-xl text-amber-200 light:text-amber-950 hover:text-white bg-amber-500/10 border border-amber-500/30"
                 aria-label="Toggle menu"
               >
                 {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -164,7 +186,7 @@ const Header: React.FC<HeaderProps> = ({ onAuthClick }) => {
                     className={`px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
                       isActive(link.path)
                         ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
-                        : 'text-amber-100/80 hover:bg-amber-500/10 hover:text-amber-200'
+                        : 'text-amber-100/80 light:text-amber-900 hover:bg-amber-500/10 hover:text-amber-200'
                     }`}
                   >
                     {link.label}
