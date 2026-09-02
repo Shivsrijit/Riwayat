@@ -76,21 +76,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(res.data.user);
       localStorage.setItem('riwayat_token', res.data.token);
       localStorage.setItem('riwayat_user', JSON.stringify(res.data.user));
-    } catch (e) {
-      // Local session authentication fallback
-      const mockUser: User = {
-        id: 'usr-local-' + Date.now(),
-        name: email.split('@')[0].toUpperCase(),
-        email: email,
-        role: 'creator',
-        bio: 'RIWAYAT Heritage Explorer',
-        region: 'India'
-      };
-      const mockToken = 'mock_jwt_token_' + Date.now();
-      setToken(mockToken);
-      setUser(mockUser);
-      localStorage.setItem('riwayat_token', mockToken);
-      localStorage.setItem('riwayat_user', JSON.stringify(mockUser));
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.error || err.message || 'Invalid login credentials.';
+      throw new Error(errorMessage);
     }
   };
 
@@ -101,20 +89,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(res.data.user);
       localStorage.setItem('riwayat_token', res.data.token);
       localStorage.setItem('riwayat_user', JSON.stringify(res.data.user));
-    } catch (e) {
-      const mockUser: User = {
-        id: 'usr-local-' + Date.now(),
-        name,
-        email,
-        role: (role as any) || 'visitor',
-        bio: 'Cultural Enthusiast',
-        region: 'India'
-      };
-      const mockToken = 'mock_jwt_token_' + Date.now();
-      setToken(mockToken);
-      setUser(mockUser);
-      localStorage.setItem('riwayat_token', mockToken);
-      localStorage.setItem('riwayat_user', JSON.stringify(mockUser));
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.error || err.message || 'Registration failed.';
+      throw new Error(errorMessage);
     }
   };
 
