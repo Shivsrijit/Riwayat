@@ -33,7 +33,7 @@ const HERO_SLIDES = [
     title: 'RIWAYAT',
     subtitle: 'Interactive Leaflet Map of Indian Heritage Hotspots',
     description: 'Explore UNESCO heritage monuments, Nagara stone carvings, and traditional artisan villages on an interactive vector map of India.',
-    bgImage: 'https://images.unsplash.com/photo-1600011689032-8b628b8a874b?auto=format&fit=crop&w=1600&q=80',
+    bgImage: 'https://images.unsplash.com/photo-1621787555718-ddea7123efa9?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
     stat: '28 States & 8 UTs Covered',
     ctaLink: '/destinations'
   }
