@@ -77,7 +77,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.setItem('riwayat_token', res.data.token);
       localStorage.setItem('riwayat_user', JSON.stringify(res.data.user));
     } catch (err: any) {
-      const errorMessage = err.response?.data?.error || err.message || 'Invalid login credentials.';
+      const errorMessage = err.response?.data?.error || err.message || 'Invalid email or password';
       throw new Error(errorMessage);
     }
   };
@@ -90,7 +90,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.setItem('riwayat_token', res.data.token);
       localStorage.setItem('riwayat_user', JSON.stringify(res.data.user));
     } catch (err: any) {
-      const errorMessage = err.response?.data?.error || err.message || 'Registration failed.';
+      const errorMessage = err.response?.data?.error || err.message || 'Registration failed';
       throw new Error(errorMessage);
     }
   };
