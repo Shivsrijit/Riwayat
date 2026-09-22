@@ -7,6 +7,7 @@ import Header from './components/Header';
 import AuthModal from './components/AuthModal';
 import CartDrawer from './components/CartDrawer';
 import Footer from './components/Footer';
+import AIChatbot from './components/AIChatbot';
 
 // Pages
 import Home from './pages/Home';
@@ -51,6 +52,7 @@ function App() {
             <Footer />
           </div>
         </Router>
+        <AIChatbot />
       </AuthProvider>
     </ThemeProvider>
   );
