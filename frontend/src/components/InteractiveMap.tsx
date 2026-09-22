@@ -152,6 +152,9 @@ const InteractiveMap: React.FC = () => {
     );
 
     filtered.forEach((dest) => {
+      // Skip destinations with missing or invalid coordinates
+      if (dest.lat == null || dest.lng == null || isNaN(dest.lat) || isNaN(dest.lng)) return;
+
       const isSelected = selectedDestination?._id === dest._id;
 
       const customIcon = L.divIcon({
@@ -318,7 +321,7 @@ const InteractiveMap: React.FC = () => {
             <div className="space-y-4 text-xs text-amber-100/80">
               <p className="leading-relaxed font-light">{selectedDestination.description}</p>
 
-              {userCoords && (
+              {userCoords && selectedDestination.lat != null && selectedDestination.lng != null && (
                 <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-between">
                   <div className="flex items-center gap-2 text-amber-300">
                     <Navigation className="w-4 h-4 text-emerald-400" />

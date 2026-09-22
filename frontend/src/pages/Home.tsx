@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowRight, MapPin, Play, BookOpen, ShoppingBag, Users, Calendar, Award, Star, Compass, ChevronRight, Flame, Search, ShieldCheck, FileText, Globe, Landmark, Palette } from 'lucide-react';
+import { ArrowRight, MapPin, Play, BookOpen, ShoppingBag, Users, Calendar, Award, Star, Compass, ChevronRight, Flame, Search, ShieldCheck, FileText, Globe, Landmark, Palette, Sparkles, Loader2, X } from 'lucide-react';
 import { fetchStories, fetchDestinations, fetchEvents, fetchProducts, fetchWorkshops } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { toast } from 'sonner';
+import { aiCulturalSearch, AISearchResult } from '../services/aiService';
 
 const HERO_SLIDES = [
   {
@@ -55,6 +56,8 @@ const Home: React.FC = () => {
   const [destinations, setDestinations] = useState<any[]>([]);
   const [products, setProducts] = useState<any[]>([]);
   const [workshops, setWorkshops] = useState<any[]>([]);
+  const [aiSearchResult, setAiSearchResult] = useState<AISearchResult | null>(null);
+  const [aiSearchLoading, setAiSearchLoading] = useState(false);
   const navigate = useNavigate();
   const { addToCart } = useAuth();
   const { theme } = useTheme();
@@ -76,11 +79,20 @@ const Home: React.FC = () => {
     fetchWorkshops().then(setWorkshops);
   }, []);
 
-  const handleSearchSubmit = (e: React.FormEvent) => {
+  const handleSearchSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!globalSearch.trim()) return;
-    toast.info(`Searching Riwayat portal for "${globalSearch}"`);
-    navigate(`/stories?search=${encodeURIComponent(globalSearch)}`);
+    setAiSearchResult(null);
+    setAiSearchLoading(true);
+    try {
+      const result = await aiCulturalSearch(globalSearch);
+      setAiSearchResult(result);
+    } catch {
+      toast.info(`Searching Riwayat portal for "${globalSearch}"`);
+      navigate(`/stories?search=${encodeURIComponent(globalSearch)}`);
+    } finally {
+      setAiSearchLoading(false);
+    }
   };
 
   const handleAddToCart = (product: any, e: React.MouseEvent) => {
@@ -163,6 +175,77 @@ const Home: React.FC = () => {
               </button>
             </div>
           </form>
+
+          {/* AI Search Loading */}
+          {aiSearchLoading && (
+            <div className="flex items-center justify-center gap-2 text-amber-400 text-xs py-2">
+              <Loader2 className="w-4 h-4 animate-spin" />
+              <span>Sahayak AI is finding the best cultural insights...</span>
+            </div>
+          )}
+
+          {/* AI Search Result Panel */}
+          {aiSearchResult && !aiSearchLoading && (
+            <div className="max-w-2xl mx-auto relative">
+              <div className="bg-[#0D1322]/95 backdrop-blur-xl border border-amber-500/30 rounded-2xl p-5 text-left space-y-4 shadow-2xl">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center flex-shrink-0">
+                      <Sparkles className="w-3 h-3 text-black" />
+                    </div>
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-amber-400">Sahayak AI · Cultural Insight</span>
+                  </div>
+                  <button onClick={() => setAiSearchResult(null)} className="text-amber-400/50 hover:text-amber-300 transition-colors">
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <p className="text-xs text-amber-100/90 leading-relaxed">{aiSearchResult.summary}</p>
+
+                {aiSearchResult.highlights?.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5">
+                    {aiSearchResult.highlights.map((h, i) => (
+                      <span key={i} className="text-[10px] px-2 py-1 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-300">
+                        ✦ {h}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                {aiSearchResult.relatedPages?.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {aiSearchResult.relatedPages.map((page, i) => (
+                      <button
+                        key={i}
+                        onClick={() => { navigate(page.path); setAiSearchResult(null); }}
+                        className="text-[10px] px-3 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/25 text-amber-300 font-semibold transition-colors flex items-center gap-1"
+                      >
+                        <ArrowRight className="w-3 h-3" />
+                        {page.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {aiSearchResult.suggestedSearches?.length > 0 && (
+                  <div className="pt-2 border-t border-amber-500/10">
+                    <p className="text-[9px] uppercase tracking-widest text-amber-400/50 mb-1.5">Also explore:</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {aiSearchResult.suggestedSearches.map((s, i) => (
+                        <button
+                          key={i}
+                          onClick={() => { setGlobalSearch(s); setAiSearchResult(null); }}
+                          className="text-[10px] text-amber-400/70 hover:text-amber-300 underline underline-offset-2 transition-colors"
+                        >
+                          {s}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Slide Progress Indicators */}
           <div className="flex items-center justify-center gap-3 pt-4">

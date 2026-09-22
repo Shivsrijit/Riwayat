@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { User, Compass, BookOpen, ShoppingBag, Award, LogOut, ShieldCheck, MapPin, Plus, ExternalLink, Star, CheckCircle2, Bookmark, FileText, ChevronRight, Crown, Sparkles } from 'lucide-react';
+import { User, Compass, BookOpen, ShoppingBag, Award, LogOut, ShieldCheck, MapPin, Plus, ExternalLink, Star, CheckCircle2, Bookmark, FileText, ChevronRight, Crown, Sparkles, Loader2, Wand2, X, Copy, Check } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import AddStoryForm from '../components/AddStoryForm';
 import { fetchStories, fetchWorkshops } from '../services/api';
 import { toast } from 'sonner';
+import { generateHeritageStory, GeneratedStory } from '../services/aiService';
 
 // Official Heritage Badges Data Model
 const CULTURAL_HERITAGE_BADGES = [
@@ -67,6 +68,13 @@ const Dashboard: React.FC = () => {
   const [userStories, setUserStories] = useState<any[]>([]);
   const [userWorkshops, setUserWorkshops] = useState<any[]>([]);
   const [loadingData, setLoadingData] = useState(true);
+
+  // AI Story Generator state
+  const [isAIStoryOpen, setIsAIStoryOpen] = useState(false);
+  const [aiPrompt, setAiPrompt] = useState('');
+  const [aiGenerating, setAiGenerating] = useState(false);
+  const [aiGeneratedStory, setAiGeneratedStory] = useState<GeneratedStory | null>(null);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     const loadDashboardData = async () => {
@@ -173,6 +181,14 @@ const Dashboard: React.FC = () => {
               >
                 <Plus className="w-4 h-4" />
                 <span>Submit Documentation</span>
+              </button>
+
+              <button
+                onClick={() => setIsAIStoryOpen(true)}
+                className="flex-1 md:flex-none px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg border border-purple-500/30"
+              >
+                <Wand2 className="w-4 h-4" />
+                <span>AI Generate Story</span>
               </button>
 
               <button
@@ -382,6 +398,140 @@ const Dashboard: React.FC = () => {
           }}
         />
       )}
+
+      {/* ── AI STORY GENERATOR MODAL ─────────────────────────────────── */}
+      {isAIStoryOpen && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-[#0D1322] border border-purple-500/30 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 space-y-6 animate-ent-rise shadow-2xl shadow-purple-900/30">
+
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-purple-500/20 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center shadow-lg">
+                  <Wand2 className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h3 className="font-serif-heritage text-xl font-bold text-white">AI Story Generator</h3>
+                  <p className="text-[10px] text-purple-300/70 font-mono">Powered by Google Gemini · Riwayat AI</p>
+                </div>
+              </div>
+              <button
+                onClick={() => { setIsAIStoryOpen(false); setAiGeneratedStory(null); setAiPrompt(''); }}
+                className="text-purple-400/60 hover:text-white transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Prompt Input */}
+            <div className="space-y-3">
+              <label className="text-xs font-bold text-purple-300 uppercase tracking-widest">
+                Describe the cultural tradition, art form, or artisan story
+              </label>
+              <textarea
+                value={aiPrompt}
+                onChange={e => setAiPrompt(e.target.value)}
+                placeholder="e.g., 'Pattachitra palm leaf scroll paintings of Raghurajpur village in Odisha' or 'The Dhrupad classical music tradition of Varanasi'"
+                rows={3}
+                className="w-full bg-[#0A0F1C] border border-purple-500/30 rounded-xl px-4 py-3 text-xs text-amber-100 placeholder-purple-300/30 focus:outline-none focus:border-purple-400 resize-none"
+              />
+              <div className="flex flex-wrap gap-2">
+                {['Madhubani painting Bihar', 'Kathakali Kerala', 'Banarasi silk weaving', 'Dhokra metal craft'].map(example => (
+                  <button
+                    key={example}
+                    onClick={() => setAiPrompt(example)}
+                    className="text-[10px] px-2.5 py-1 rounded-lg bg-purple-500/10 border border-purple-500/20 text-purple-300 hover:bg-purple-500/20 transition-colors"
+                  >
+                    {example}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <button
+              onClick={async () => {
+                if (!aiPrompt.trim()) return toast.warning('Please describe the cultural topic first.');
+                setAiGenerating(true);
+                setAiGeneratedStory(null);
+                try {
+                  const story = await generateHeritageStory(aiPrompt);
+                  setAiGeneratedStory(story);
+                  toast.success('Heritage story generated by Sahayak AI!');
+                } catch {
+                  toast.error('AI generation failed. Please try again.');
+                } finally {
+                  setAiGenerating(false);
+                }
+              }}
+              disabled={aiGenerating || !aiPrompt.trim()}
+              className="w-full py-3 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-sm flex items-center justify-center gap-2 shadow-lg disabled:opacity-50 transition-all"
+            >
+              {aiGenerating ? (
+                <><Loader2 className="w-4 h-4 animate-spin" /><span>Sahayak AI is writing your story...</span></>
+              ) : (
+                <><Sparkles className="w-4 h-4" /><span>Generate Heritage Documentation</span></>
+              )}
+            </button>
+
+            {/* Generated Story Result */}
+            {aiGeneratedStory && (
+              <div className="space-y-4 border border-amber-500/20 rounded-2xl p-5 bg-[#080D1A]">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="space-y-1 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded">{aiGeneratedStory.category}</span>
+                      <span className="text-[10px] text-amber-300/60">📍 {aiGeneratedStory.region}</span>
+                      <span className="text-[10px] text-amber-300/60">⏱ {aiGeneratedStory.readTime}</span>
+                    </div>
+                    <h4 className="font-serif-heritage text-lg font-bold gold-gradient-text leading-tight">{aiGeneratedStory.title}</h4>
+                    <p className="text-[10px] text-amber-300/70">By {aiGeneratedStory.author} · {aiGeneratedStory.authorRole}</p>
+                  </div>
+                  <button
+                    onClick={async () => {
+                      await navigator.clipboard.writeText(
+                        `${aiGeneratedStory.title}\n\n${aiGeneratedStory.description}\n\n${aiGeneratedStory.content}`
+                      );
+                      setCopied(true);
+                      toast.success('Story copied to clipboard!');
+                      setTimeout(() => setCopied(false), 2000);
+                    }}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs hover:bg-amber-500/20 transition-colors flex-shrink-0"
+                  >
+                    {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                    <span>{copied ? 'Copied!' : 'Copy'}</span>
+                  </button>
+                </div>
+
+                <p className="text-xs text-amber-200/80 italic leading-relaxed border-l-2 border-amber-500/30 pl-3">{aiGeneratedStory.description}</p>
+                <p className="text-xs text-amber-100/70 leading-relaxed">{aiGeneratedStory.content}</p>
+
+                {aiGeneratedStory.tags?.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 pt-2 border-t border-amber-500/10">
+                    {aiGeneratedStory.tags.map((tag, i) => (
+                      <span key={i} className="text-[9px] px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/15">
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                <button
+                  onClick={() => {
+                    setIsAIStoryOpen(false);
+                    setIsSubmitModalOpen(true);
+                    toast.info('Opening submission form — paste the AI-generated content in!');
+                  }}
+                  className="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 text-black font-bold text-xs flex items-center justify-center gap-2 shadow-md mt-2"
+                >
+                  <Plus className="w-4 h-4" />
+                  Submit This Story to Riwayat
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

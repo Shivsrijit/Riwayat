@@ -75,6 +75,7 @@ app.use('/api/destinations', require('./routes/destinations'));
 app.use('/api/workshops', require('./routes/workshops'));
 app.use('/api/forum', require('./routes/forum'));
 app.use('/api/creator-jobs', require('./routes/creatorJobs'));
+app.use('/api/ai', require('./routes/ai'));
 
 // Status & Health Check
 app.get('/api/status', (req, res) => {

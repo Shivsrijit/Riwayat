@@ -1,13 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { Search, Star, MapPin, Award, CheckCircle2, Phone, Mail, Compass, X } from 'lucide-react';
+import { Search, Star, MapPin, Award, CheckCircle2, Phone, Mail, Compass, X, Sparkles, Loader2, Camera } from 'lucide-react';
 import { fetchArtists } from '../services/api';
 import { toast } from 'sonner';
+import { getArtisanAISummary } from '../services/aiService';
+import ImageAnalyzer from '../components/ImageAnalyzer';
 
 const Artists: React.FC = () => {
   const [artists, setArtists] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedArtistModal, setSelectedArtistModal] = useState<any | null>(null);
   const [bookedMap, setBookedMap] = useState<{ [key: string]: boolean }>({});
+  const [aiProfiles, setAiProfiles] = useState<{ [key: string]: string }>({});
+  const [aiLoadingId, setAiLoadingId] = useState<string | null>(null);
+  const [showAnalyzer, setShowAnalyzer] = useState(false);
 
   useEffect(() => {
     fetchArtists().then(setArtists);
@@ -26,6 +31,19 @@ const Artists: React.FC = () => {
     toast.success(`Requested master session with ${artist.name}`);
   };
 
+  const handleGetAIProfile = async (artist: any) => {
+    if (aiProfiles[artist._id]) return; // already fetched
+    setAiLoadingId(artist._id);
+    try {
+      const profile = await getArtisanAISummary(artist.name, artist.craft, artist.region, artist.bio);
+      setAiProfiles(prev => ({ ...prev, [artist._id]: profile }));
+    } catch {
+      toast.error('Could not generate AI profile. Please try again.');
+    } finally {
+      setAiLoadingId(null);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#060A12] text-amber-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto space-y-10">
@@ -41,7 +59,31 @@ const Artists: React.FC = () => {
           <p className="text-sm text-amber-200/70 leading-relaxed font-light">
             Connecting global art lovers and institutions directly with master craftsmen, weavers, painters, and folk musicians.
           </p>
+          <button
+            onClick={() => setShowAnalyzer(p => !p)}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500/15 to-orange-500/10 border border-amber-500/30 text-amber-300 text-xs font-bold hover:bg-amber-500/20 transition-all"
+          >
+            <Camera className="w-4 h-4" />
+            <Sparkles className="w-3.5 h-3.5" />
+            {showAnalyzer ? 'Hide' : 'Try'} AI Heritage Image Identifier
+          </button>
         </div>
+
+        {/* AI Image Analyzer Panel */}
+        {showAnalyzer && (
+          <div className="max-w-xl mx-auto p-6 bg-[#0D1322] border border-amber-500/25 rounded-2xl space-y-3">
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center">
+                <Sparkles className="w-3.5 h-3.5 text-black" />
+              </div>
+              <div>
+                <p className="text-sm font-bold text-amber-100">AI Heritage Image Identifier</p>
+                <p className="text-[10px] text-amber-400/60">Upload any Indian craft, art, or textile image to identify it</p>
+              </div>
+            </div>
+            <ImageAnalyzer />
+          </div>
+        )}
 
         {/* Search Bar */}
         <div className="flex justify-center">
@@ -90,6 +132,29 @@ const Artists: React.FC = () => {
                   <p className="text-xs text-amber-200/70 leading-relaxed line-clamp-3 font-light">
                     {artist.bio}
                   </p>
+
+                  {/* AI Heritage Profile */}
+                  {aiProfiles[artist._id] ? (
+                    <div className="mt-1 p-2.5 rounded-xl bg-gradient-to-r from-amber-500/8 to-orange-500/5 border border-amber-500/15">
+                      <div className="flex items-center gap-1 mb-1">
+                        <Sparkles className="w-3 h-3 text-amber-400" />
+                        <span className="text-[9px] uppercase tracking-widest font-bold text-amber-400">AI Heritage Profile</span>
+                      </div>
+                      <p className="text-[10px] text-amber-200/80 italic leading-relaxed">{aiProfiles[artist._id]}</p>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => handleGetAIProfile(artist)}
+                      disabled={aiLoadingId === artist._id}
+                      className="w-full mt-1 py-1.5 rounded-lg bg-amber-500/8 border border-amber-500/20 text-amber-400/70 text-[10px] font-semibold hover:bg-amber-500/15 hover:text-amber-300 transition-all flex items-center justify-center gap-1.5 disabled:opacity-60"
+                    >
+                      {aiLoadingId === artist._id ? (
+                        <><Loader2 className="w-3 h-3 animate-spin" /><span>Generating AI Profile...</span></>
+                      ) : (
+                        <><Sparkles className="w-3 h-3" /><span>Generate AI Heritage Profile</span></>
+                      )}
+                    </button>
+                  )}
                 </div>
 
                 <div className="pt-4 border-t border-amber-500/10 flex items-center justify-center gap-3">

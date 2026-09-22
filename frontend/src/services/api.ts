@@ -14,6 +14,7 @@ const api = axios.create({
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('riwayat_token');
   if (token) {
+    config.headers = config.headers ?? {};
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
@@ -186,7 +187,7 @@ export const FALLBACK_CREATOR_JOBS = [
 export const fetchStories = async () => {
   if (memoryCache['stories']) return memoryCache['stories'];
   try {
-    const res = await api.get('/stories');
+    const res = await api.get<any[]>('/stories');
     const data = res.data.length ? res.data : FALLBACK_STORIES;
     memoryCache['stories'] = data;
     return data;
@@ -199,7 +200,7 @@ export const fetchStories = async () => {
 export const fetchProducts = async () => {
   if (memoryCache['products']) return memoryCache['products'];
   try {
-    const res = await api.get('/products');
+    const res = await api.get<any[]>('/products');
     const data = res.data.length ? res.data : FALLBACK_PRODUCTS;
     memoryCache['products'] = data;
     return data;
@@ -212,7 +213,7 @@ export const fetchProducts = async () => {
 export const fetchWorkshops = async () => {
   if (memoryCache['workshops']) return memoryCache['workshops'];
   try {
-    const res = await api.get('/workshops');
+    const res = await api.get<any[]>('/workshops');
     const data = res.data.length ? res.data : FALLBACK_WORKSHOPS;
     memoryCache['workshops'] = data;
     return data;
@@ -225,7 +226,7 @@ export const fetchWorkshops = async () => {
 export const fetchDestinations = async () => {
   if (memoryCache['destinations']) return memoryCache['destinations'];
   try {
-    const res = await api.get('/destinations');
+    const res = await api.get<any[]>('/destinations');
     const data = res.data.length ? res.data : FALLBACK_DESTINATIONS;
     memoryCache['destinations'] = data;
     return data;
@@ -238,7 +239,7 @@ export const fetchDestinations = async () => {
 export const fetchEvents = async () => {
   if (memoryCache['events']) return memoryCache['events'];
   try {
-    const res = await api.get('/recent-events');
+    const res = await api.get<any[]>('/recent-events');
     const data = res.data.length ? res.data : FALLBACK_EVENTS;
     memoryCache['events'] = data;
     return data;
@@ -251,7 +252,7 @@ export const fetchEvents = async () => {
 export const fetchArtists = async () => {
   if (memoryCache['artists']) return memoryCache['artists'];
   try {
-    const res = await api.get('/artists');
+    const res = await api.get<any[]>('/artists');
     const data = res.data.length ? res.data : FALLBACK_ARTISTS;
     memoryCache['artists'] = data;
     return data;
@@ -264,7 +265,7 @@ export const fetchArtists = async () => {
 export const fetchForumPosts = async () => {
   if (memoryCache['forum']) return memoryCache['forum'];
   try {
-    const res = await api.get('/forum');
+    const res = await api.get<any[]>('/forum');
     const data = res.data.length ? res.data : FALLBACK_FORUM_POSTS;
     memoryCache['forum'] = data;
     return data;
@@ -277,7 +278,7 @@ export const fetchForumPosts = async () => {
 export const fetchCreatorJobs = async () => {
   if (memoryCache['jobs']) return memoryCache['jobs'];
   try {
-    const res = await api.get('/creator-jobs');
+    const res = await api.get<any[]>('/creator-jobs');
     const data = res.data.length ? res.data : FALLBACK_CREATOR_JOBS;
     memoryCache['jobs'] = data;
     return data;
